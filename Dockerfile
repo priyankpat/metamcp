@@ -1,15 +1,38 @@
 # Use the official uv image as base
 FROM ghcr.io/astral-sh/uv:debian AS base
 
+# Copy and install corporate certificate
+COPY cert/AMD_CA.crt /usr/local/share/ca-certificates/AMD_CA.crt
+RUN chmod 644 /usr/local/share/ca-certificates/AMD_CA.crt
+
+ENV NODE_EXTRA_CA_CERTS="/usr/local/share/ca-certificates/AMD_CA.crt"
+
+RUN apt update && apt install -y \
+    ca-certificates \
+    && update-ca-certificates \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install Node.js and pnpm directly
 RUN apt-get update && apt-get install -y \
     curl \
     gnupg \
+    nginx \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g pnpm@10.12.0 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Configure nginx to run as nextjs user with proper permissions
+RUN sed -i 's/user www-data;/user nextjs;/' /etc/nginx/nginx.conf && \
+    sed -i 's/pid \/run\/nginx.pid;/pid \/tmp\/nginx.pid;/' /etc/nginx/nginx.conf && \
+    sed -i 's/error_log \/var\/log\/nginx\/error.log;/error_log \/tmp\/nginx_error.log;/' /etc/nginx/nginx.conf
+
+# Copy our custom server configuration
+COPY ./nginx.conf /etc/nginx/sites-available/default
+RUN rm -f /etc/nginx/sites-enabled/default && \
+    ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -71,6 +94,16 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 --home /home/nextjs nextjs && \
     mkdir -p /home/nextjs/.cache/node/corepack && \
     chown -R nextjs:nodejs /home/nextjs
+
+# Create nginx directories with proper permissions for nextjs user
+RUN mkdir -p /var/cache/nginx /tmp/nginx /home/nextjs/logs && \
+    chown -R nextjs:nodejs /var/cache/nginx && \
+    chown -R nextjs:nodejs /var/log/nginx && \
+    chown -R nextjs:nodejs /var/lib/nginx && \
+    chown -R nextjs:nodejs /tmp/nginx && \
+    chown -R nextjs:nodejs /home/nextjs/logs && \
+    chmod 755 /tmp/nginx && \
+    chmod 755 /home/nextjs/logs
 
 # Copy built applications
 COPY --from=builder --chown=nextjs:nodejs /app/apps/frontend/.next ./apps/frontend/.next

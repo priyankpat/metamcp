@@ -37,6 +37,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useTranslations } from "@/hooks/useTranslations";
 import { authClient } from "@/lib/auth-client";
 import { getLocalizedPath, SupportedLocale } from "@/lib/i18n";
+import { getBasePath } from "@/lib/env";
 
 // Menu items function - now takes locale parameter
 const getMenuItems = (t: (key: string) => string, locale: SupportedLocale) => [
@@ -108,7 +109,7 @@ function UserInfoFooter() {
 
   const handleSignOut = async () => {
     await authClient.signOut();
-    window.location.href = "/login";
+    window.location.href = `${getBasePath()}/login`;
   };
 
   return (
@@ -162,7 +163,7 @@ export default function SidebarLayout({
           <div className="flex items-center justify-center w-full mb-2">
             <div className="flex items-center gap-4">
               <Image
-                src="/favicon.ico"
+                src={`${getBasePath()}/favicon.ico`}
                 alt="MetaMCP Logo"
                 width={256}
                 height={256}

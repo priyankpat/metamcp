@@ -1,6 +1,8 @@
 import { betterFetch } from "@better-fetch/fetch";
 import { NextRequest, NextResponse } from "next/server";
 
+import { getBasePath } from "./lib/env";
+
 const locales = ["en", "zh"];
 const defaultLocale = "en";
 
@@ -69,6 +71,10 @@ export async function middleware(request: NextRequest) {
     // Redirect to the appropriate locale
     locale = getLocale(request);
     const newUrl = new URL(`/${locale}${pathname}`, request.url);
+    // const newUrl = new URL(
+    //   `${getBasePath()}/${locale}${pathname}`,
+    //   request.url,
+    // );
     // Preserve query parameters during redirect
     newUrl.search = request.nextUrl.search;
     return NextResponse.redirect(newUrl);
@@ -104,7 +110,7 @@ export async function middleware(request: NextRequest) {
 
     if (!session) {
       // Redirect to login if not authenticated (with locale)
-      const loginUrl = new URL(`/${locale}/login`, request.url);
+      const loginUrl = new URL(`${getBasePath()}/${locale}/login`, request.url);
       loginUrl.searchParams.set("callbackUrl", pathnameWithoutLocale);
       return NextResponse.redirect(loginUrl);
     }
@@ -113,7 +119,7 @@ export async function middleware(request: NextRequest) {
   } catch (error) {
     console.error("Auth middleware error:", error);
     // On error, redirect to login (with locale)
-    const loginUrl = new URL(`/${locale}/login`, request.url);
+    const loginUrl = new URL(`${getBasePath()}/${locale}/login`, request.url);
     loginUrl.searchParams.set("callbackUrl", pathnameWithoutLocale);
     return NextResponse.redirect(loginUrl);
   }
@@ -122,6 +128,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Skip all internal paths (_next, etc.)
-    "/((?!_next|api/|trpc|mcp-proxy|metamcp|oauth|fe-oauth|\\.well-known|service|health|.*\\..*).*)",
+    "/((?!_next|api/|trpc|mcp-proxy|metamcp|oauth|fe-oauth|\\.well-known|service|health|sign-in|sign-up|__nextjs_source-map|.*\\..*).*)",
   ],
 };

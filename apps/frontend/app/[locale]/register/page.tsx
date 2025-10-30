@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useTranslations } from "@/hooks/useTranslations";
 import { authClient } from "@/lib/auth-client";
+import { getBasePath } from "@/lib/env";
 import { vanillaTrpcClient } from "@/lib/trpc";
 
 function LoadingFallback() {
@@ -27,7 +28,7 @@ function LoadingFallback() {
 }
 
 function RegisterForm() {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -86,11 +87,12 @@ function RegisterForm() {
     }
 
     try {
+      const callbackUrl = `${getBasePath()}/${locale}`;
       const { error } = await authClient.signUp.email({
         email,
         password,
         name,
-        callbackURL: "/",
+        callbackURL: callbackUrl,
       });
 
       if (error) {
@@ -108,7 +110,7 @@ function RegisterForm() {
           setError(error.message || t("auth:registrationFailed"));
         }
       } else {
-        router.push("/");
+        router.push(callbackUrl);
         router.refresh();
       }
     } catch (err) {

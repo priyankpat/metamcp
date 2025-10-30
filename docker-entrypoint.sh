@@ -66,7 +66,8 @@ echo "✅ Backend server started successfully (PID: $BACKEND_PID)"
 # Start frontend
 echo "Starting frontend server..."
 cd /app/apps/frontend
-PORT=12008 pnpm start &
+# PORT=12008 pnpm start &
+PORT=12008 node .next/standalone/apps/frontend/server.js &
 FRONTEND_PID=$!
 
 # Wait a moment for frontend to start
@@ -80,11 +81,38 @@ if ! kill -0 $FRONTEND_PID 2>/dev/null; then
 fi
 echo "✅ Frontend server started successfully (PID: $FRONTEND_PID)"
 
+# Start nginx
+echo "Starting nginx..."
+# Test nginx configuration first
+if nginx -t; then
+    echo "Nginx configuration is valid"
+    # Start nginx in foreground, then send to background
+    nginx -g 'daemon off;' &
+    NGINX_PID=$!
+else
+    echo "❌ Nginx configuration test failed! Exiting..."
+    exit 1
+fi
+
+# Wait a moment for nginx to start
+sleep 2
+
+# Check if nginx is still running
+if ! kill -0 $NGINX_PID 2>/dev/null; then
+    echo "❌ Nginx died! Exiting..."
+    kill $BACKEND_PID 2>/dev/null
+    kill $FRONTEND_PID 2>/dev/null
+    exit 1
+fi
+echo "✅ Nginx started successfully (PID: $NGINX_PID)"
+
 # Function to cleanup on exit
 cleanup() {
     echo "Shutting down services..."
+    kill $NGINX_PID 2>/dev/null || true
     kill $BACKEND_PID 2>/dev/null || true
     kill $FRONTEND_PID 2>/dev/null || true
+    wait $NGINX_PID 2>/dev/null || true
     wait $BACKEND_PID 2>/dev/null || true
     wait $FRONTEND_PID 2>/dev/null || true
     echo "Services stopped"
@@ -96,7 +124,9 @@ trap cleanup TERM INT
 echo "Services started successfully!"
 echo "Backend running on port 12009"
 echo "Frontend running on port 12008"
+echo "Nginx running on port 80"
 
 # Wait for both processes
+wait $NGINX_PID
 wait $BACKEND_PID
 wait $FRONTEND_PID 

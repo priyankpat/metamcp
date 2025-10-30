@@ -11,10 +11,11 @@ import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useTranslations } from "@/hooks/useTranslations";
 import { authClient } from "@/lib/auth-client";
+import { getBasePath } from "@/lib/env";
 import { vanillaTrpcClient } from "@/lib/trpc";
 
 function LoginForm() {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +28,8 @@ function LoginForm() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const callbackUrl =
+    searchParams.get("callbackUrl") || `${getBasePath()}/${locale}`;
 
   // Check if signup is disabled
   useEffect(() => {

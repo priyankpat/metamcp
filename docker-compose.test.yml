@@ -9,6 +9,8 @@ services:
       - .env
     ports:
       - "12008:12008"
+      - "12009:12009"
+      - "80:80"
     environment:
       # Postgres connection details
       POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
@@ -23,6 +25,10 @@ services:
       # Application URL configuration
       APP_URL: ${APP_URL:-http://localhost:12008}
       NEXT_PUBLIC_APP_URL: ${APP_URL:-http://localhost:12008}
+
+      # Base Path
+      BASE_PATH: ${BASE_PATH:-/mcp/gateway}
+      NEXT_PUBLIC_BASE_PATH: ${NEXT_PUBLIC_BASE_PATH:-/mcp/gateway}
       
       # Auth configuration
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-your-super-secret-key-change-this-in-production}

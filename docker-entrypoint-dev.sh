@@ -54,6 +54,10 @@ echo "🔄 Hot reloading is enabled for both frontend and backend"
 echo "📦 Checking dependencies..."
 pnpm install
 
+# Build the dependencies
+echo "📦 Building dependencies..."
+pnpm build
+
 # Run database migrations for development
 echo "🛠 Running database migrations (dev)..."
 (

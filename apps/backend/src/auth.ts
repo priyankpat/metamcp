@@ -15,7 +15,8 @@ if (!process.env.APP_URL) {
 }
 
 const BETTER_AUTH_SECRET = process.env.BETTER_AUTH_SECRET;
-const BETTER_AUTH_URL = process.env.APP_URL;
+const BASE_PATH = process.env.BASE_PATH as string;
+const BETTER_AUTH_URL = process.env.APP_URL.replace(BASE_PATH, "");
 
 // Helper function to create basic auth middleware
 const createBasicAuthCheckMiddleware = () => {
