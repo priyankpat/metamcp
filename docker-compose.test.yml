@@ -8,9 +8,11 @@ services:
     env_file:
       - .env
     ports:
-      - "12008:12008"
-      - "12009:12009"
       - "80:80"
+    # volumes:
+      # Mount nginx configuration for easier testing
+      # - ./nginx.conf:/etc/nginx/sites-available/default:ro
+      # - ./nginx.conf:/etc/nginx/sites-enabled/default:ro
     environment:
       # Postgres connection details
       POSTGRES_HOST: ${POSTGRES_HOST:-postgres}

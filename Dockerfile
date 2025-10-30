@@ -7,22 +7,36 @@ RUN chmod 644 /usr/local/share/ca-certificates/AMD_CA.crt
 
 ENV NODE_EXTRA_CA_CERTS="/usr/local/share/ca-certificates/AMD_CA.crt"
 
-RUN apt update && apt install -y \
-    ca-certificates \
-    && update-ca-certificates \
-    && apt clean \
-    && rm -rf /var/lib/apt/lists/*
+# Completely replace sources.list to avoid authentication issues
+RUN rm -f /etc/apt/sources.list.d/* && \
+    echo "deb http://archive.debian.org/debian/ bullseye main" > /etc/apt/sources.list
 
-# Install Node.js and pnpm directly
-RUN apt-get update && apt-get install -y \
+# Update package lists and install base packages
+RUN apt-get update --allow-releaseinfo-change && APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-get install -y --no-install-recommends \
+    ca-certificates \
     curl \
     gnupg \
     nginx \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
+    nano \
+    sudo \
+    build-essential \
+    && update-ca-certificates \
+    && mkdir -p /etc/apt/keyrings \
+    && (curl --cacert /usr/local/share/ca-certificates/AMD_CA.crt -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key || curl -k -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key) | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends nodejs \
+    && node --version \
+    && npm --version \
+    && npm config set cafile /usr/local/share/ca-certificates/AMD_CA.crt \
+    && npm config set strict-ssl false \
+    && npm config set registry https://registry.npmjs.org/ \
     && npm install -g pnpm@10.12.0 \
+    && pnpm config set strict-ssl false \
+    && pnpm config set ca /usr/local/share/ca-certificates/AMD_CA.crt \
+    && pnpm --version \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Configure nginx to run as nextjs user with proper permissions
 RUN sed -i 's/user www-data;/user nextjs;/' /etc/nginx/nginx.conf && \
@@ -86,8 +100,13 @@ LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.title="MetaMCP"
 LABEL org.opencontainers.image.vendor="metatool-ai"
 
-# Install curl for health checks
-RUN apt-get update && apt-get install -y curl postgresql-client && apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install curl for health checks (reuse same repository configuration)
+RUN rm -f /etc/apt/sources.list.d/* && \
+    echo "deb http://archive.debian.org/debian/ bullseye main" > /etc/apt/sources.list && \
+    apt-get update --allow-releaseinfo-change && \
+    apt-get install -y --no-install-recommends curl postgresql-client-13 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Create non-root user with proper home directory
 RUN addgroup --system --gid 1001 nodejs
@@ -132,7 +151,7 @@ RUN chmod +x docker-entrypoint.sh
 USER nextjs
 
 # Expose frontend port (Next.js)
-EXPOSE 12008
+EXPOSE 80
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \

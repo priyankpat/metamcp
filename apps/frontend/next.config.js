@@ -1,20 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  basePath: process.env.NEXT_PUBLIC_BASE_PATH || process.env.BASE_PATH,
-  assetPrefix: process.env.NEXT_PUBLIC_BASE_PATH || process.env.BASE_PATH,
+  basePath: "/mcp/gateway",
+  assetPrefix: "/mcp/gateway",
   output: "standalone",
   experimental: {
     proxyTimeout: 1000 * 120,
   },
-  // async redirects() {
-  //   return [
-  //     {
-  //       source: "/",
-  //       destination: "/en/mcp-servers",
-  //       permanent: false,
-  //     },
-  //   ];
-  // },
   async rewrites() {
     // Use localhost for rewrites since frontend and backend run in the same container
     const backendUrl = "http://localhost:12009";
