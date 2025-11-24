@@ -50,7 +50,7 @@ run_migrations
 # Start backend in the background
 echo "Starting backend server..."
 cd /app/apps/backend
-PORT=12009 node dist/index.js &
+HOSTNAME=0.0.0.0 PORT=12009 node dist/index.js &
 BACKEND_PID=$!
 
 # Wait a moment for backend to start
@@ -67,7 +67,7 @@ echo "✅ Backend server started successfully (PID: $BACKEND_PID)"
 echo "Starting frontend server..."
 cd /app/apps/frontend
 # PORT=12008 pnpm start &
-PORT=12008 node .next/standalone/apps/frontend/server.js &
+HOSTNAME=0.0.0.0 PORT=12007 node .next/standalone/apps/frontend/server.js &
 FRONTEND_PID=$!
 
 # Wait a moment for frontend to start

@@ -62,7 +62,7 @@ sseRouter.get(
       );
 
       const webAppTransport = new SSEServerTransport(
-        `/metamcp/${endpointName}/message`,
+        `${process.env.BASE_PATH}/metamcp/${endpointName}/message`,
         res,
       );
       console.log("Created public endpoint SSE transport");

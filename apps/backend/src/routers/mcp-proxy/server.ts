@@ -556,7 +556,7 @@ serverRouter.get("/stdio", async (req, res) => {
     }
 
     const webAppTransport = new SSEServerTransport(
-      "/mcp-proxy/server/message",
+      `${process.env.BASE_PATH}/mcp-proxy/server/message`,
       res,
     );
     console.log("Created client transport");
@@ -762,7 +762,7 @@ serverRouter.get("/sse", async (req, res) => {
 
     if (serverTransport) {
       const webAppTransport = new SSEServerTransport(
-        "/mcp-proxy/server/message",
+        `${process.env.BASE_PATH}/mcp-proxy/server/message`,
         res,
       );
       webAppTransports.set(webAppTransport.sessionId, webAppTransport);

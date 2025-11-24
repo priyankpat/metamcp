@@ -28,7 +28,10 @@ export const getBasePath = () => {
   // Check if we're running on the server side
   if (typeof window === "undefined") {
     // Server-side: try to get from process.env first, then runtime env
-    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || process.env.BASE_PATH;
+    const basePath =
+      process.env.NEXT_PUBLIC_BASE_PATH ||
+      process.env.BASE_PATH ||
+      "/mcp/gateway";
     if (basePath) {
       return basePath;
     }

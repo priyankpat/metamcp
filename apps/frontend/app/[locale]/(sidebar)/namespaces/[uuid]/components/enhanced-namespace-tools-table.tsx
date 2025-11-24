@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useTranslations } from "@/hooks/useTranslations";
+import { getBasePath } from "@/lib/env";
 import { parseToolName } from "@/lib/tool-name-parser";
 import { trpc } from "@/lib/trpc";
 
@@ -128,7 +129,7 @@ export function EnhancedNamespaceToolsTable({
   >(new Map());
 
   // Get translations
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
 
   // Get tRPC utils for cache invalidation
   const utils = trpc.useUtils();
@@ -929,7 +930,9 @@ export function EnhancedNamespaceToolsTable({
                             )}
                             {tool.serverUuid && (
                               <DropdownMenuItem asChild>
-                                <Link href={`/mcp-servers/${tool.serverUuid}`}>
+                                <Link
+                                  href={`/mcp-servers/${tool.serverUuid}`}
+                                >
                                   <Server className="mr-2 h-4 w-4" />
                                   {t(
                                     "namespaces:enhancedToolsTable.viewServer",

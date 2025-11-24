@@ -23,11 +23,17 @@ export const betterAuthMcpMiddleware = async (
       });
     }
 
+    console.log("Auth middleware - verifying session for request to", req.path);
+    console.log("Auth middleware - header", req.headers.host);
+    console.log("Auth middleware - cookie", req.headers.cookie);
+
     // Verify the session using better-auth with original cookies
     const sessionUrl = new URL(
-      "/api/auth/get-session",
+      `${process.env.BASE_PATH}/api/auth/get-session`,
       `http://${req.headers.host}`,
     );
+
+    console.log("Auth middleware - session url", sessionUrl.toString());
 
     const headers = new Headers();
     headers.set("cookie", req.headers.cookie);

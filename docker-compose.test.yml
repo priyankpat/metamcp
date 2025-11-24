@@ -8,7 +8,7 @@ services:
     env_file:
       - .env
     ports:
-      - "80:80"
+      - "12008:12008"
     # volumes:
       # Mount nginx configuration for easier testing
       # - ./nginx.conf:/etc/nginx/sites-available/default:ro

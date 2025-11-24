@@ -1,8 +1,6 @@
 import { betterFetch } from "@better-fetch/fetch";
 import { NextRequest, NextResponse } from "next/server";
 
-import { getBasePath } from "./lib/env";
-
 const locales = ["en", "zh"];
 const defaultLocale = "en";
 
@@ -70,7 +68,8 @@ export async function middleware(request: NextRequest) {
   } else {
     // Redirect to the appropriate locale
     locale = getLocale(request);
-    const newUrl = new URL(`/${locale}${pathname}`, request.url);
+    const newUrl = request.nextUrl.clone();
+    newUrl.pathname = `/${locale}${pathname}`;
     // const newUrl = new URL(
     //   `${getBasePath()}/${locale}${pathname}`,
     //   request.url,
@@ -94,24 +93,30 @@ export async function middleware(request: NextRequest) {
       "";
 
     // Check if user is authenticated by calling the session endpoint
-    const { data: session } = await betterFetch("/api/auth/get-session", {
-      // this hardcoded is correct, because in same container, we should use localhost, outside url won't work
-      baseURL: "http://localhost:12009",
-      headers: {
-        cookie: request.headers.get("cookie") || "",
-        // Pass nginx-forwarded host headers for better-auth baseURL resolution
-        host: originalHost,
-        // Include nginx forwarding headers if present
-        "x-forwarded-host": request.headers.get("x-forwarded-host") || "",
-        "x-forwarded-proto": request.headers.get("x-forwarded-proto") || "",
-        "x-forwarded-for": request.headers.get("x-forwarded-for") || "",
+    const { data: session, error: sessionError } = await betterFetch(
+      `/api/auth/get-session`,
+      {
+        // Use localhost for internal container communication - this is correct for same container deployment
+        baseURL: "http://localhost:12009",
+        headers: {
+          cookie: request.headers.get("cookie") || "",
+          // Pass nginx-forwarded host headers for better-auth baseURL resolution
+          host: originalHost,
+          // Include nginx forwarding headers if present
+          "x-forwarded-host": request.headers.get("x-forwarded-host") || "",
+          "x-forwarded-proto": request.headers.get("x-forwarded-proto") || "",
+          "x-forwarded-for": request.headers.get("x-forwarded-for") || "",
+        },
       },
-    });
+    );
+
+    console.log("Session Data", session);
+    console.log("Session Error", sessionError);
 
     if (!session) {
       // Redirect to login if not authenticated (with locale)
-      const loginUrl = new URL(`${getBasePath()}/${locale}/login`, request.url);
-      loginUrl.searchParams.set("callbackUrl", pathnameWithoutLocale);
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = `/${locale}/login`;
       return NextResponse.redirect(loginUrl);
     }
 
@@ -119,8 +124,8 @@ export async function middleware(request: NextRequest) {
   } catch (error) {
     console.error("Auth middleware error:", error);
     // On error, redirect to login (with locale)
-    const loginUrl = new URL(`${getBasePath()}/${locale}/login`, request.url);
-    loginUrl.searchParams.set("callbackUrl", pathnameWithoutLocale);
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = `/${locale}/login`;
     return NextResponse.redirect(loginUrl);
   }
 }

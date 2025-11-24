@@ -201,7 +201,7 @@ metamcpRouter.get("/:uuid/sse", async (req, res) => {
     );
 
     const webAppTransport = new SSEServerTransport(
-      `/mcp-proxy/metamcp/${namespaceUuid}/message`,
+      `${process.env.BASE_PATH}/mcp-proxy/metamcp/${namespaceUuid}/message`,
       res,
     );
     console.log("Created MetaMCP SSE transport");

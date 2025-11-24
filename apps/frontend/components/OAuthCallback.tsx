@@ -8,9 +8,10 @@ import { useTranslations } from "@/hooks/useTranslations";
 import { getServerSpecificKey, SESSION_KEYS } from "../lib/constants";
 import { createAuthProvider } from "../lib/oauth-provider";
 import { vanillaTrpcClient } from "../lib/trpc";
+import { getBasePath } from "@/lib/env";
 
 const OAuthCallback = () => {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const hasProcessedRef = useRef(false);
 
   useEffect(() => {
@@ -30,7 +31,7 @@ const OAuthCallback = () => {
 
       if (!code || !serverUrl || !mcpServerUuid) {
         console.error("Missing required OAuth parameters");
-        window.location.href = "/mcp-servers";
+        window.location.href = `${getBasePath()}/${locale}/mcp-servers`;
         return;
       }
 
@@ -83,10 +84,10 @@ const OAuthCallback = () => {
         sessionStorage.removeItem(SESSION_KEYS.MCP_SERVER_UUID);
 
         // Redirect back to the MCP server detail page
-        window.location.href = `/mcp-servers/${mcpServerUuid}`;
+        window.location.href = `${getBasePath()}/${locale}/mcp-servers/${mcpServerUuid}`;
       } catch (error) {
         console.error("OAuth callback error:", error);
-        window.location.href = "/mcp-servers";
+        window.location.href = `${getBasePath()}/${locale}/mcp-servers`;
       }
     };
 

@@ -126,7 +126,10 @@ authorizationRouter.get("/oauth/authorize", rateLimitAuth, async (req, res) => {
     if (req.headers.cookie) {
       try {
         // Verify the session using better-auth
-        const sessionUrl = new URL("/api/auth/get-session", baseUrl);
+        const sessionUrl = new URL(
+          `${process.env.BASE_PATH}/api/auth/get-session`,
+          baseUrl,
+        );
         const headers = new Headers();
         headers.set("cookie", req.headers.cookie);
 
@@ -292,7 +295,10 @@ Content-Type: application/json
     }
 
     // Verify the session using better-auth
-    const sessionUrl = new URL("/api/auth/get-session", getBaseUrl(req));
+    const sessionUrl = new URL(
+      `${process.env.BASE_PATH}/api/auth/get-session`,
+      getBaseUrl(req),
+    );
     const headers = new Headers();
     headers.set("cookie", req.headers.cookie);
 

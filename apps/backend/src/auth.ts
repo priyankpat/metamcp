@@ -13,10 +13,13 @@ if (!process.env.BETTER_AUTH_SECRET) {
 if (!process.env.APP_URL) {
   throw new Error("APP_URL environment variable is required");
 }
+if (!process.env.BASE_PATH) {
+  throw new Error("BASE_PATH environment variable is required");
+}
 
 const BETTER_AUTH_SECRET = process.env.BETTER_AUTH_SECRET;
-const BASE_PATH = process.env.BASE_PATH as string;
-const BETTER_AUTH_URL = process.env.APP_URL.replace(BASE_PATH, "");
+const BETTER_AUTH_URL = process.env.APP_URL;
+const BETTER_BASE_PATH = process.env.BASE_PATH;
 
 // Helper function to create basic auth middleware
 const createBasicAuthCheckMiddleware = () => {
@@ -52,7 +55,9 @@ if (process.env.OIDC_CLIENT_ID && process.env.OIDC_CLIENT_SECRET) {
 
 export const auth = betterAuth({
   secret: BETTER_AUTH_SECRET,
-  baseURL: BETTER_AUTH_URL,
+  baseURL: BETTER_AUTH_URL.replace(BETTER_BASE_PATH, ""),
+  basePath: `${BETTER_BASE_PATH}/api/auth`,
+  // baseURL: `${BETTER_AUTH_URL}/api/auth`,
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {
@@ -72,6 +77,10 @@ export const auth = betterAuth({
     "http://0.0.0.0",
     "http://0.0.0.0:3000",
     "http://0.0.0.0:12008",
+    "http://0.0.0.0:12007",
+    "http://localhost:12007",
+    "https://mcp-platform-dev.amd.com",
+    "https://mcp-platform.amd.com",
   ],
   plugins: [
     // Add generic OAuth plugin for OIDC support

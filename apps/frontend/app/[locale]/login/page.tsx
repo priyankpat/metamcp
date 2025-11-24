@@ -29,7 +29,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl =
-    searchParams.get("callbackUrl") || `${getBasePath()}/${locale}`;
+    searchParams.get("callbackUrl") || `${getBasePath()}/${locale}/mcp-servers`;
 
   // Check if signup is disabled
   useEffect(() => {
@@ -210,7 +210,10 @@ function LoginForm() {
       {!isSignupDisabled && (
         <div className="text-center text-sm">
           <span className="text-muted-foreground">{t("auth:noAccount")} </span>
-          <Link href="/register" className="underline underline-offset-4">
+          <Link
+            href={`/${locale}/register`}
+            className="underline underline-offset-4"
+          >
             {t("auth:signUp")}
           </Link>
         </div>

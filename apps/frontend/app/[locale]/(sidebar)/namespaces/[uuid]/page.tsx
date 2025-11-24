@@ -21,6 +21,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useConnection } from "@/hooks/useConnection";
 import { useTranslations } from "@/hooks/useTranslations";
+import { getBasePath } from "@/lib/env";
 import { trpc } from "@/lib/trpc";
 
 import { NamespaceServersTable } from "./components/namespace-servers-table";
@@ -94,7 +95,7 @@ export default function NamespaceDetailPage({
     transportType: McpServerTypeEnum.Enum.SSE,
     command: "", // Not needed for metamcp proxy
     args: "",
-    url: `/mcp-proxy/metamcp/${uuid}/sse`, // Connect to metamcp proxy endpoint
+    url: `${getBasePath()}/mcp-proxy/metamcp/${uuid}/sse`, // Connect to metamcp proxy endpoint
     env: {},
     bearerToken: undefined,
     isMetaMCP: true, // Indicate this is a MetaMCP connection

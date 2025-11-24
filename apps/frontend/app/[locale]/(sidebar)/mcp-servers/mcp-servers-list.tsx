@@ -58,6 +58,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useTranslations } from "@/hooks/useTranslations";
+import { getBasePath } from "@/lib/env";
 import { trpc } from "@/lib/trpc";
 
 interface McpServersListProps {
@@ -65,7 +66,7 @@ interface McpServersListProps {
 }
 
 export function McpServersList({ onRefresh }: McpServersListProps) {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([
     {

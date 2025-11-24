@@ -35,7 +35,7 @@ function getBaseUrl(req: express.Request): string {
   const forwardedProto = req.headers["x-forwarded-proto"] as string;
 
   if (forwardedHost) {
-    const protocol = forwardedProto || "http";
+    const protocol = forwardedProto || "https";
     return `${protocol}://${forwardedHost}`;
   }
 

@@ -28,19 +28,51 @@ export const createContext = async ({
     if (req.headers.cookie) {
       // Create a proper Request object for better-auth
       const sessionUrl = new URL(
-        "/api/auth/get-session",
-        `http://${req.headers.host}`,
+        `${process.env.BASE_PATH}/api/auth/get-session`,
+        `https://${req.headers.host}`,
+        // `http://localhost:12009`,
       );
 
+      console.log("session - host", req.headers.host);
+      console.log("session - url", sessionUrl.toString());
+
       const headers = new Headers();
-      headers.set("cookie", req.headers.cookie);
+      // headers.set("cookie", req.headers.cookie);
+      Object.entries(req.headers).forEach(([key, value]) => {
+        if (value) {
+          headers.set(key, Array.isArray(value) ? value[0] : value);
+        }
+      });
 
       const sessionRequest = new Request(sessionUrl.toString(), {
         method: "GET",
         headers,
       });
 
+      console.log("session - request", sessionRequest);
+
       const sessionResponse = await auth.handler(sessionRequest);
+
+      console.log(
+        "session - response",
+        sessionResponse.statusText,
+        sessionResponse.status,
+        sessionResponse.ok,
+      );
+
+      // const testResponse = await fetch(sessionUrl.toString(), {
+      //   method: "GET",
+      //   headers,
+      //   credentials: "include",
+      // });
+
+      // console.log(
+      //   "session - fetch response",
+      //   testResponse.statusText,
+      //   testResponse.status,
+      //   testResponse.ok,
+      //   await testResponse.json(),
+      // );
 
       if (sessionResponse.ok) {
         const sessionData = (await sessionResponse.json()) as {

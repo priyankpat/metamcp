@@ -41,7 +41,7 @@ import { z } from "zod";
 import { SESSION_KEYS } from "@/lib/constants";
 
 import { ConnectionStatus } from "../lib/constants";
-import { getAppUrl } from "../lib/env";
+import { getAppUrl, getBasePath } from "../lib/env";
 import {
   Notification,
   StdErrNotificationSchema,
@@ -257,7 +257,10 @@ export function useConnection({
 
   const checkProxyHealth = useMemoizedFn(async () => {
     try {
-      const proxyHealthUrl = new URL(`/mcp-proxy/server/health`, getAppUrl());
+      const proxyHealthUrl = new URL(
+        `${getBasePath()}/mcp-proxy/server/health`,
+        getAppUrl(),
+      );
 
       // Cookies will be sent automatically by the browser
       const proxyHealthResponse = await fetch(proxyHealthUrl, {
@@ -410,7 +413,7 @@ export function useConnection({
           switch (transportType) {
             case McpServerTypeEnum.Enum.STDIO:
               mcpProxyServerUrl = new URL(
-                `/mcp-proxy/server/stdio`,
+                `${getBasePath()}/mcp-proxy/server/stdio`,
                 getAppUrl(),
               );
               mcpProxyServerUrl.searchParams.append("command", command);
@@ -444,7 +447,10 @@ export function useConnection({
               break;
 
             case McpServerTypeEnum.Enum.SSE:
-              mcpProxyServerUrl = new URL(`/mcp-proxy/server/sse`, getAppUrl());
+              mcpProxyServerUrl = new URL(
+                `${getBasePath()}/mcp-proxy/server/sse`,
+                getAppUrl(),
+              );
               mcpProxyServerUrl.searchParams.append("url", url);
               transportOptions = {
                 eventSourceInit: {
@@ -473,7 +479,10 @@ export function useConnection({
               break;
 
             case McpServerTypeEnum.Enum.STREAMABLE_HTTP:
-              mcpProxyServerUrl = new URL(`/mcp-proxy/server/mcp`, getAppUrl());
+              mcpProxyServerUrl = new URL(
+                `${getBasePath()}/mcp-proxy/server/mcp`,
+                getAppUrl(),
+              );
               mcpProxyServerUrl.searchParams.append("url", url);
               transportOptions = {
                 authProvider: authProvider,

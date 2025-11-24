@@ -48,6 +48,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useTranslations } from "@/hooks/useTranslations";
+import { getBasePath } from "@/lib/env";
 import { trpc } from "@/lib/trpc";
 
 interface NamespaceServersTableProps {
@@ -64,7 +65,7 @@ export function NamespaceServersTable({
   sessionInitializing = false,
 }: NamespaceServersTableProps) {
   const router = useRouter();
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const [sorting, setSorting] = useState<SortingState>([
     {
       id: "name",

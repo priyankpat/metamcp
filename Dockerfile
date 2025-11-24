@@ -46,7 +46,10 @@ RUN sed -i 's/user www-data;/user nextjs;/' /etc/nginx/nginx.conf && \
 # Copy our custom server configuration
 COPY ./nginx.conf /etc/nginx/sites-available/default
 RUN rm -f /etc/nginx/sites-enabled/default && \
-    ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+    ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default && \
+    chmod 666 /etc/nginx/sites-available/default && \
+    chmod 777 /etc/nginx/sites-available && \
+    chmod 777 /etc/nginx/sites-enabled
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -83,7 +86,7 @@ COPY --from=deps /app/packages ./packages
 COPY . .
 
 # Build all packages and apps
-RUN pnpm build
+RUN npx dotenv -e .env pnpm build
 
 RUN sed -i -e "s/30000/600000/" \
     "node_modules/.pnpm/next@15.5.2_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/server/lib/router-utils/proxy-request.js" \
@@ -122,7 +125,10 @@ RUN mkdir -p /var/cache/nginx /tmp/nginx /home/nextjs/logs && \
     chown -R nextjs:nodejs /tmp/nginx && \
     chown -R nextjs:nodejs /home/nextjs/logs && \
     chmod 755 /tmp/nginx && \
-    chmod 755 /home/nextjs/logs
+    chmod 755 /home/nextjs/logs && \
+    chmod 666 /etc/nginx/sites-available/default && \
+    chmod 777 /etc/nginx/sites-available && \
+    chmod 777 /etc/nginx/sites-enabled
 
 # Copy built applications
 COPY --from=builder --chown=nextjs:nodejs /app/apps/frontend/.next ./apps/frontend/.next
@@ -144,14 +150,15 @@ RUN pnpm install --prod
 # Install drizzle-kit locally in backend for migrations
 RUN cd apps/backend && pnpm add drizzle-kit@0.31.1
 
-# Copy startup script
+# Copy startup script and nginx helper
 COPY --chown=nextjs:nodejs docker-entrypoint.sh ./
+
 RUN chmod +x docker-entrypoint.sh
 
 USER nextjs
 
 # Expose frontend port (Next.js)
-EXPOSE 80
+EXPOSE 12008
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \

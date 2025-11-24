@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useTranslations } from "@/hooks/useTranslations";
 import { authClient } from "@/lib/auth-client";
-import { getBasePath } from "@/lib/env";
 import { vanillaTrpcClient } from "@/lib/trpc";
 
 function LoadingFallback() {
@@ -87,7 +86,7 @@ function RegisterForm() {
     }
 
     try {
-      const callbackUrl = `${getBasePath()}/${locale}`;
+      const callbackUrl = `/${locale}/login`;
       const { error } = await authClient.signUp.email({
         email,
         password,
@@ -165,7 +164,10 @@ function RegisterForm() {
           <span className="text-muted-foreground">
             {t("auth:alreadyHaveAccount")}{" "}
           </span>
-          <Link href="/login" className="underline underline-offset-4">
+          <Link
+            href={`/${locale}/login`}
+            className="underline underline-offset-4"
+          >
             {t("auth:signIn")}
           </Link>
         </div>
@@ -270,7 +272,10 @@ function RegisterForm() {
         <span className="text-muted-foreground">
           {t("auth:alreadyHaveAccount")}{" "}
         </span>
-        <Link href="/login" className="underline underline-offset-4">
+        <Link
+          href={`/${locale}/login`}
+          className="underline underline-offset-4"
+        >
           {t("auth:signIn")}
         </Link>
       </div>

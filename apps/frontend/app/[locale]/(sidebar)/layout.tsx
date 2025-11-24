@@ -36,8 +36,8 @@ import {
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useTranslations } from "@/hooks/useTranslations";
 import { authClient } from "@/lib/auth-client";
-import { getLocalizedPath, SupportedLocale } from "@/lib/i18n";
 import { getBasePath } from "@/lib/env";
+import { getLocalizedPath, SupportedLocale } from "@/lib/i18n";
 
 // Menu items function - now takes locale parameter
 const getMenuItems = (t: (key: string) => string, locale: SupportedLocale) => [
@@ -95,7 +95,7 @@ function LiveLogsMenuItem() {
 }
 
 function UserInfoFooter() {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const [user, setUser] = useState<any>(null);
 
   // Get user info
@@ -109,7 +109,7 @@ function UserInfoFooter() {
 
   const handleSignOut = async () => {
     await authClient.signOut();
-    window.location.href = `${getBasePath()}/login`;
+    window.location.href = `${getBasePath()}/${locale}/login`;
   };
 
   return (

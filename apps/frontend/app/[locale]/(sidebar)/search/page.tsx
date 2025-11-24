@@ -7,6 +7,7 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { SearchSkeleton } from "@/components/skeletons/search-skeleton";
 import { Input } from "@/components/ui/input";
 import { useTranslations } from "@/hooks/useTranslations";
+import { getBasePath } from "@/lib/env";
 import type { PaginatedSearchResult } from "@/types/search";
 
 import CardGrid from "./components/CardGrid";
@@ -44,7 +45,7 @@ function SearchContent() {
     queryKey: ["search", debouncedQuery, offset],
     queryFn: async () => {
       const res = await fetch(
-        `/service/search?query=${encodeURIComponent(debouncedQuery)}&pageSize=${PAGE_SIZE}&offset=${offset}`,
+        `${getBasePath()}/service/search?query=${encodeURIComponent(debouncedQuery)}&pageSize=${PAGE_SIZE}&offset=${offset}`,
       );
       if (!res.ok) {
         const errorText = await res.text();

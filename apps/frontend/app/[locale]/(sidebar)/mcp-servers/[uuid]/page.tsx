@@ -27,6 +27,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useConnection } from "@/hooks/useConnection";
 import { useTranslations } from "@/hooks/useTranslations";
+import { getBasePath } from "@/lib/env";
 import { trpc } from "@/lib/trpc";
 
 import { ToolManagement } from "./components/tool-management";
@@ -42,7 +43,7 @@ export default function McpServerDetailPage({
 }: McpServerDetailPageProps) {
   const { uuid } = use(params);
   const router = useRouter();
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
 
   // State to track which sensitive fields are revealed
   const [revealedEnvVars, setRevealedEnvVars] = useState<Set<string>>(
@@ -91,7 +92,7 @@ export default function McpServerDetailPage({
         utils.frontend.mcpServers.list.invalidate();
         toast.success(t("mcp-servers:detail.deleteServerSuccess"));
         // Navigate back to the servers list
-        router.push("/mcp-servers");
+        router.push(`/mcp-servers`);
       } else {
         // Handle business logic failures
         console.error("Delete failed:", result.message);
@@ -224,7 +225,7 @@ export default function McpServerDetailPage({
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-2">
-          <Link href="/mcp-servers">
+          <Link href={`/mcp-servers`}>
             <Button variant="ghost" size="sm">
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("mcp-servers:detail.backToServers")}
@@ -257,7 +258,7 @@ export default function McpServerDetailPage({
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-2">
-          <Link href="/mcp-servers">
+          <Link href={`/${locale}/mcp-servers`}>
             <Button variant="ghost" size="sm">
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("mcp-servers:detail.backToServers")}
@@ -307,7 +308,7 @@ export default function McpServerDetailPage({
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <Link href="/mcp-servers">
+        <Link href={`/${locale}/mcp-servers`}>
           <Button variant="ghost" size="sm">
             <ArrowLeft className="h-4 w-4 mr-2" />
             {t("mcp-servers:detail.backToServers")}

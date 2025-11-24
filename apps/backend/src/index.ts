@@ -7,6 +7,12 @@ import oauthRouter from "./routers/oauth";
 import publicEndpointsRouter from "./routers/public-metamcp";
 import trpcRouter from "./routers/trpc";
 
+if (!process.env.BASE_PATH) {
+  throw new Error("BASE_PATH environment variable is required");
+}
+
+const BASE_PATH = process.env.BASE_PATH;
+
 const app = express();
 
 // Global JSON middleware for non-proxy routes
@@ -27,8 +33,14 @@ app.use(async (req, res, next) => {
   if (req.path.startsWith("/api/auth")) {
     try {
       // Create a web Request object from Express request
-      const url = new URL(req.url, `http://${req.headers.host}`);
+      const url = new URL(
+        `${BASE_PATH}${req.url}`,
+        `http://${req.headers.host}`,
+      );
       const headers = new Headers();
+
+      console.log("Auth route - url", req.url);
+      console.log("Auth route - processing request for", url.toString());
 
       // Copy headers from Express request
       Object.entries(req.headers).forEach(([key, value]) => {
@@ -49,6 +61,8 @@ app.use(async (req, res, next) => {
 
       // Call better-auth directly
       const response = await auth.handler(request);
+
+      console.log(response);
 
       // Convert Response back to Express response
       res.status(response.status);
@@ -82,7 +96,7 @@ app.use("/mcp-proxy", mcpProxyRouter);
 // Mount tRPC routes
 app.use("/trpc", trpcRouter);
 
-app.listen(12009, async () => {
+app.listen(12009, "0.0.0.0", async () => {
   console.log(`Server is running on port 12009`);
   console.log(`Auth routes available at: http://localhost:12009/api/auth`);
   console.log(
